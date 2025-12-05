@@ -194,9 +194,7 @@ function App() {
         {/* Footer */}
         <footer className="text-center mt-12 text-gray-500 text-sm">
           <p>
-            Configure the Raspberry Pi server URL via{' '}
-            <code className="bg-gray-800 px-2 py-1 rounded">VITE_API_URL</code>{' '}
-            environment variable
+            made with ❤️ by <a href="https://github.com/rdzcn" target="_blank" rel="noopener noreferrer">rdzcn</a>
           </p>
         </footer>
       </div>
