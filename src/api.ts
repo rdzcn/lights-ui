@@ -2,10 +2,16 @@ import type { Grid, SavedGrid } from './types';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
+// Common headers for all requests - includes ngrok-skip-browser-warning to bypass ngrok's interstitial page
+const commonHeaders = {
+	'ngrok-skip-browser-warning': 'true',
+};
+
 export async function sendGrid(grid: Grid): Promise<{ status: string; message: string }> {
 	const response = await fetch(`${API_URL}/grid`, {
 		method: 'POST',
 		headers: {
+			...commonHeaders,
 			'Content-Type': 'application/json',
 		},
 		body: JSON.stringify({ grid }),
@@ -22,6 +28,7 @@ export async function sendGrid(grid: Grid): Promise<{ status: string; message: s
 export async function clearGrid(): Promise<{ status: string; message: string }> {
 	const response = await fetch(`${API_URL}/clear`, {
 		method: 'POST',
+		headers: commonHeaders,
 	});
 
 	if (!response.ok) {
@@ -36,6 +43,7 @@ export async function setBrightness(brightness: number): Promise<{ status: strin
 	const response = await fetch(`${API_URL}/brightness`, {
 		method: 'POST',
 		headers: {
+			...commonHeaders,
 			'Content-Type': 'application/json',
 		},
 		body: JSON.stringify({ brightness }),
@@ -54,9 +62,10 @@ export async function healthCheck(): Promise<{
 	unicorn_available: boolean;
 	grid_size: { width: number; height: number };
 }> {
-	console.log('API_URL:', API_URL);
-	const response = await fetch(`${API_URL}/health`);
-	console.log('Health check response:', response);
+	const response = await fetch(`${API_URL}/health`, {
+		headers: commonHeaders,
+	});
+
 	if (!response.ok) {
 		throw new Error('Server is not responding');
 	}
@@ -65,7 +74,9 @@ export async function healthCheck(): Promise<{
 }
 
 export async function getGridHistory(): Promise<{ grids: SavedGrid[] }> {
-	const response = await fetch(`${API_URL}/history`);
+	const response = await fetch(`${API_URL}/history`, {
+		headers: commonHeaders,
+	});
 
 	if (!response.ok) {
 		throw new Error('Failed to fetch grid history');

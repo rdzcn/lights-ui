@@ -22,6 +22,7 @@ function App() {
     setIsLoadingHistory(true);
     try {
       const response = await getGridHistory();
+      console.log('Fetched grid history:', response);
       setRecentGrids(response.grids);
     } catch (error) {
       console.error('Failed to fetch history:', error);
@@ -29,8 +30,6 @@ function App() {
       setIsLoadingHistory(false);
     }
   }, []);
-
-  console.log('serverStatus:', serverStatus);
 
   // Check server health on mount and periodically
   useEffect(() => {
