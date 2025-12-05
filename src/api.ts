@@ -82,5 +82,7 @@ export async function getGridHistory(): Promise<{ grids: SavedGrid[] }> {
 		throw new Error('Failed to fetch grid history');
 	}
 
+	console.log('Fetched grid history response:', response);
+
 	return response.json();
 }
