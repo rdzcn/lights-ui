@@ -2,9 +2,10 @@ import { useState, useEffect, useCallback } from 'react';
 import { PixelGrid } from './components/PixelGrid';
 import { ColorPicker } from './components/ColorPicker';
 import { Controls } from './components/Controls';
-import type { Color, Grid } from './types';
+import { RecentGrids } from './components/RecentGrids';
+import type { Color, Grid, SavedGrid } from './types';
 import { createEmptyGrid, PRESET_COLORS } from './types';
-import { sendGrid, clearGrid, setBrightness, healthCheck } from './api';
+import { sendGrid, clearGrid, setBrightness, healthCheck, getGridHistory } from './api';
 
 function App() {
   const [grid, setGrid] = useState<Grid>(createEmptyGrid);
@@ -13,6 +14,23 @@ function App() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [serverStatus, setServerStatus] = useState<'connected' | 'disconnected' | 'unknown'>('unknown');
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+  const [recentGrids, setRecentGrids] = useState<SavedGrid[]>([]);
+  const [isLoadingHistory, setIsLoadingHistory] = useState(false);
+
+  // Fetch grid history
+  const fetchHistory = useCallback(async () => {
+    setIsLoadingHistory(true);
+    try {
+      const response = await getGridHistory();
+      setRecentGrids(response.grids);
+    } catch (error) {
+      console.error('Failed to fetch history:', error);
+    } finally {
+      setIsLoadingHistory(false);
+    }
+  }, []);
+
+  console.log('serverStatus:', serverStatus);
 
   // Check server health on mount and periodically
   useEffect(() => {
@@ -26,9 +44,10 @@ function App() {
     };
 
     checkHealth();
+    fetchHistory();
     const interval = setInterval(checkHealth, 10000);
     return () => clearInterval(interval);
-  }, []);
+  }, [fetchHistory]);
 
   // Clear message after 3 seconds
   useEffect(() => {
@@ -71,6 +90,8 @@ function App() {
       await sendGrid(grid);
       await setBrightness(brightness);
       setMessage({ type: 'success', text: 'Grid sent to Unicorn HAT!' });
+      // Refetch history to show the newly submitted grid
+      await fetchHistory();
     } catch (error) {
       setMessage({
         type: 'error',
@@ -98,6 +119,12 @@ function App() {
 
   const handleBrightnessChange = async (value: number) => {
     setBrightnessValue(value);
+  };
+
+  const handleRecentGridClick = (savedGrid: SavedGrid) => {
+    // Load the clicked grid into the editor
+    setGrid(savedGrid.grid.map(row => row.map(c => ({ ...c }))));
+    setMessage({ type: 'success', text: 'Grid loaded! Click "Send" to display it.' });
   };
 
   return (
@@ -157,6 +184,13 @@ function App() {
             />
           </div>
         </div>
+
+        {/* Recent Grids Section */}
+        <RecentGrids
+          grids={recentGrids}
+          onGridClick={handleRecentGridClick}
+          isLoading={isLoadingHistory}
+        />
 
         {/* Footer */}
         <footer className="text-center mt-12 text-gray-500 text-sm">

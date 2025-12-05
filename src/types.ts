@@ -6,6 +6,12 @@ export interface Color {
 
 export type Grid = Color[][];
 
+export interface SavedGrid {
+	id: string;
+	grid: Grid;
+	timestamp: string;
+}
+
 export const GRID_SIZE = 8;
 
 export const DEFAULT_COLOR: Color = { r: 0, g: 0, b: 0 };

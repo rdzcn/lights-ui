@@ -69,7 +69,7 @@ export function Controls({
       <div className="flex flex-col gap-2">
         <button
           onClick={onSubmit}
-          disabled={isSubmitting || serverStatus === 'disconnected'}
+          disabled={isSubmitting}
           className="px-6 py-3 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-600 
                      disabled:cursor-not-allowed text-white font-semibold rounded-lg 
                      transition-colors flex items-center justify-center gap-2"

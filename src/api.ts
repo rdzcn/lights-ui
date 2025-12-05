@@ -1,4 +1,4 @@
-import type { Grid } from './types';
+import type { Grid, SavedGrid } from './types';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
@@ -54,10 +54,21 @@ export async function healthCheck(): Promise<{
 	unicorn_available: boolean;
 	grid_size: { width: number; height: number };
 }> {
+	console.log('API_URL:', API_URL);
 	const response = await fetch(`${API_URL}/health`);
-
+	console.log('Health check response:', response);
 	if (!response.ok) {
 		throw new Error('Server is not responding');
+	}
+
+	return response.json();
+}
+
+export async function getGridHistory(): Promise<{ grids: SavedGrid[] }> {
+	const response = await fetch(`${API_URL}/history`);
+
+	if (!response.ok) {
+		throw new Error('Failed to fetch grid history');
 	}
 
 	return response.json();
