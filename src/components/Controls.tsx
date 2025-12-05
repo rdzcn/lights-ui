@@ -6,6 +6,7 @@ interface ControlsProps {
   onBrightnessChange: (value: number) => void;
   isSubmitting: boolean;
   serverStatus: 'connected' | 'disconnected' | 'unknown';
+  cooldownSeconds: number;
 }
 
 export function Controls({
@@ -16,7 +17,10 @@ export function Controls({
   onBrightnessChange,
   isSubmitting,
   serverStatus,
+  cooldownSeconds,
 }: ControlsProps) {
+  const isDisabled = isSubmitting || serverStatus !== 'connected' || cooldownSeconds > 0;
+  
   return (
     <div className="flex flex-col gap-4">
       <h2 className="text-lg font-semibold text-gray-200">Controls</h2>
@@ -69,7 +73,7 @@ export function Controls({
       <div className="flex flex-col gap-2">
         <button
           onClick={onSubmit}
-          disabled={isSubmitting || serverStatus !== 'connected'}
+          disabled={isDisabled}
           className="px-6 py-3 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-600 
                      disabled:cursor-not-allowed text-white font-semibold rounded-lg 
                      transition-colors flex items-center justify-center gap-2"
@@ -78,6 +82,11 @@ export function Controls({
             <>
               <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
               Sending...
+            </>
+          ) : cooldownSeconds > 0 ? (
+            <>
+              <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+              Wait {cooldownSeconds}s
             </>
           ) : (
             '🚀 Send to Unicorn HAT'

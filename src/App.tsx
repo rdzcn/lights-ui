@@ -16,6 +16,7 @@ function App() {
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
   const [recentGrids, setRecentGrids] = useState<SavedGrid[]>([]);
   const [isLoadingHistory, setIsLoadingHistory] = useState(false);
+  const [cooldownSeconds, setCooldownSeconds] = useState(0);
 
   // Fetch grid history
   const fetchHistory = useCallback(async () => {
@@ -56,6 +57,14 @@ function App() {
     }
   }, [message]);
 
+  // Cooldown countdown timer
+  useEffect(() => {
+    if (cooldownSeconds > 0) {
+      const timer = setTimeout(() => setCooldownSeconds(cooldownSeconds - 1), 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [cooldownSeconds]);
+
   const handlePixelClick = useCallback(
     (x: number, y: number) => {
       setGrid((prev) => {
@@ -89,6 +98,10 @@ function App() {
       await sendGrid(grid);
       await setBrightness(brightness);
       setMessage({ type: 'success', text: 'Grid sent to Unicorn HAT!' });
+      // Clear the grid after successful submit
+      setGrid(createEmptyGrid());
+      // Start 20-second cooldown
+      setCooldownSeconds(20);
       // Refetch history to show the newly submitted grid
       await fetchHistory();
     } catch (error) {
@@ -180,6 +193,7 @@ function App() {
               onBrightnessChange={handleBrightnessChange}
               isSubmitting={isSubmitting}
               serverStatus={serverStatus}
+              cooldownSeconds={cooldownSeconds}
             />
           </div>
         </div>
