@@ -57,8 +57,8 @@ export function Controls({
         </label>
         <input
           type="range"
-          min="0"
-          max="100"
+          min="30"
+          max="70"
           value={brightness * 100}
           onChange={(e) => onBrightnessChange(parseInt(e.target.value) / 100)}
           className="w-full accent-yellow-400"
@@ -69,7 +69,7 @@ export function Controls({
       <div className="flex flex-col gap-2">
         <button
           onClick={onSubmit}
-          disabled={isSubmitting}
+          disabled={isSubmitting || serverStatus !== 'connected'}
           className="px-6 py-3 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-600 
                      disabled:cursor-not-allowed text-white font-semibold rounded-lg 
                      transition-colors flex items-center justify-center gap-2"
