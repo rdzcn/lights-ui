@@ -3,9 +3,10 @@ import { PixelGrid } from './components/PixelGrid';
 import { ColorPicker } from './components/ColorPicker';
 import { Controls } from './components/Controls';
 import { RecentGrids } from './components/RecentGrids';
+import { WordGenerator } from './components/WordGenerator';
 import type { Color, Grid, SavedGrid } from './types';
 import { createEmptyGrid, PRESET_COLORS } from './types';
-import { sendGrid, clearGrid, setBrightness, healthCheck, getGridHistory } from './api';
+import { sendGrid, clearGrid, setBrightness, healthCheck, getGridHistory, generateGrid } from './api';
 
 function App() {
   const [grid, setGrid] = useState<Grid>(createEmptyGrid);
@@ -139,6 +140,16 @@ function App() {
     setMessage({ type: 'success', text: 'Grid loaded! Click "Send" to display it.' });
   };
 
+  const handleGridGenerated = (generatedGrid: Grid) => {
+    // Load the AI-generated grid into the editor
+    setGrid(generatedGrid.map(row => row.map(c => ({ ...c }))));
+    setMessage({ type: 'success', text: 'Grid generated! Click "Send" to display it on your LEDs.' });
+  };
+
+  const handleGenerateError = (errorMessage: string) => {
+    setMessage({ type: 'error', text: errorMessage });
+  };
+
   return (
     <div className="min-h-screen bg-gray-950 text-white">
       <div className="container mx-auto px-4 py-8">
@@ -178,6 +189,16 @@ function App() {
 
           {/* Sidebar */}
           <div className="flex flex-col gap-6 w-full lg:w-72 bg-gray-900 rounded-xl p-6">
+            <WordGenerator
+              onGridGenerated={handleGridGenerated}
+              onGenerateStart={() => setMessage(null)}
+              onError={handleGenerateError}
+              isDisabled={serverStatus !== 'connected'}
+              generateGrid={generateGrid}
+            />
+
+            <hr className="border-gray-700" />
+
             <ColorPicker
               selectedColor={selectedColor}
               onColorChange={setSelectedColor}

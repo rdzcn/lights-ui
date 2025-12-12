@@ -86,3 +86,21 @@ export async function getGridHistory(): Promise<{ grids: SavedGrid[] }> {
 
 	return response.json();
 }
+
+export async function generateGrid(word: string): Promise<{ grid: Grid; word: string }> {
+	const response = await fetch(`${API_URL}/generate`, {
+		method: 'POST',
+		headers: {
+			...commonHeaders,
+			'Content-Type': 'application/json',
+		},
+		body: JSON.stringify({ word }),
+	});
+
+	if (!response.ok) {
+		const error = await response.json();
+		throw new Error(error.error || 'Failed to generate grid');
+	}
+
+	return response.json();
+}
